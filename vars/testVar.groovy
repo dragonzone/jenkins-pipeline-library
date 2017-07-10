@@ -6,8 +6,6 @@ def call(Closure body) {
 
     def config = new MavenDSL()
 
-    config.preBuild = { config.preBuildClosure = it }
-
     body.delegate = config
     body.resolveStrategy = Closure.DELEGATE_FIRST
 
