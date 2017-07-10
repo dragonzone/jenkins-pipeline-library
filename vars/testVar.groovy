@@ -1,21 +1,20 @@
-class testVar implements Serializable {
-    def call(Closure body) {
-        echo this.class.name
 
-        def config = [:]
+def call(Closure body) {
+    echo this.class.name
 
-        config.preBuild = { config.preBuildClosure = it }
+    def config = [:]
 
-        body.delegate = config
-        body.resolveStrategy = Closure.DELEGATE_FIRST
+    config.preBuild = { config.preBuildClosure = it }
 
-        body()
+    body.delegate = config
+    body.resolveStrategy = Closure.DELEGATE_FIRST
 
-        echo config.someValue
+    body()
 
-        def preBuildClosure = config.preBuildClosure
-        preBuildClosure()
+    echo config.someValue
+
+    def preBuildClosure = config.preBuildClosure
+    preBuildClosure()
 
 
-    }
 }
