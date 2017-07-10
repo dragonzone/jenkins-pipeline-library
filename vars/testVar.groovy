@@ -2,7 +2,7 @@
 def call(Closure body) {
     echo this.class.name
 
-    def config = [:]
+    def config = new zone.dragon.jenkins.pipeline.MavenDSL()
 
     config.preBuild = { config.preBuildClosure = it }
 
