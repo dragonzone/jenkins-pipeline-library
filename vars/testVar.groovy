@@ -14,6 +14,8 @@ def call(Closure body) {
     echo config.someValue
 
     def preBuildClosure = config.preBuildClosure
+    preBuildClosure.delegate = this
+    preBuildClosure.resolveStrategy = Closure.DELEGATE_FIRST
     preBuildClosure()
 
 
