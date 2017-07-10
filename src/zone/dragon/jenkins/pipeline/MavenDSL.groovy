@@ -15,5 +15,9 @@ class MavenDSL implements Serializable {
     def preBuild(Closure value) {
         this.preBuildClosure = value
     }
+    
+    def getPreBuildClosure() {
+        return preBuildClosure
+    }
 
 }
