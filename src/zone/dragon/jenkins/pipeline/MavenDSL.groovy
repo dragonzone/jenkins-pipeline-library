@@ -1,3 +1,5 @@
+package zone.dragon.jenkins.pipeline
+
 class MavenDSL implements Serializable {
     private String someValue
     private Closure preBuildClosure
