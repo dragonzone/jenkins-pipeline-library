@@ -1,8 +1,10 @@
 
+import zone.dragon.jenkins.pipeline.MavenDSL
+
 def call(Closure body) {
     echo this.class.name
 
-    def config = new zone.dragon.jenkins.pipeline.MavenDSL()
+    def config = new MavenDSL()
 
     config.preBuild = { config.preBuildClosure = it }
 
