@@ -9,27 +9,29 @@
  */
 
 def call(Closure config) {
-    stage("Checkout SCM") {
-        checkout scm
-    }
-
-    def hash = gitHash().take(6)
-    def version = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}-${hash}"
-    def org = env.JOB_NAME.split('/')[0]
-    def repo = env.JOB_NAME.split('/')[1]
-    def imageName = "${org}/${repo}:${version}"
-
-    def image
-
-    stage("Build Docker Image") {
-        docker.withRegistry('https://docker.dragon.zone:10080', 'jenkins-nexus') {
-            image = docker.build(imageName)
+    node('docker') {
+        stage("Checkout SCM") {
+            checkout scm
         }
-    }
 
-    stage("Push Docker Image") {
-        docker.withRegistry('https://docker.dragon.zone:10081', 'jenkins-nexus') {
-            image.push(imageName)
+        def hash = gitHash().take(6)
+        def version = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}-${hash}"
+        def org = env.JOB_NAME.split('/')[0]
+        def repo = env.JOB_NAME.split('/')[1]
+        def imageName = "${org}/${repo}:${version}"
+
+        def image
+
+        stage("Build Docker Image") {
+            docker.withRegistry('https://docker.dragon.zone:10080', 'jenkins-nexus') {
+                image = docker.build(imageName)
+            }
+        }
+
+        stage("Push Docker Image") {
+            docker.withRegistry('https://docker.dragon.zone:10081', 'jenkins-nexus') {
+                image.push(imageName)
+            }
         }
     }
 }
