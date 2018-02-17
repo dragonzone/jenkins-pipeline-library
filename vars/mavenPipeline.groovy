@@ -35,6 +35,7 @@ def call(Closure closure) {
                 sh "mkdir -p $HOME/.gnupg && chmod 700 $HOME/.gnupg && mkdir $HOME/.ssh && chmod 700 $HOME/.ssh"
                 withMaven(globalMavenSettingsConfig: globalMavenSettingsConfig, mavenLocalRepo: '.m2') {
 
+                    echo "$WORKSPACE/.git/known_hosts"
                     /*
                      * Clone the repository and make sure that the pom.xml file is structurally valid and has a GAV
                      */
@@ -49,7 +50,6 @@ def call(Closure closure) {
                     def gitAuthorEmail = "${env.CHANGE_AUTHOR_EMAIL ? env.CHANGE_AUTHOR_EMAIL : sh(returnStdout: true, script: 'git log -1 --format="%aE" HEAD').trim()}"
                     sh "git config user.name ${gitAuthor}"
                     sh "git config user.email ${gitAuthorEmail}"
-                    echo "$WORKSPACE/.git/known_hosts"
                     sh "git config core.sshCommand 'ssh -o UserKnownHostsFile=$WORKSPACE/.git/known_hosts'"
 
                     // Set Build Information
