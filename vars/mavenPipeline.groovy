@@ -32,7 +32,7 @@ def call(Closure closure) {
 
         buildEnv.inside('-v /etc/passwd:/etc/passwd:ro') {
             withEnv(["HOME=/tmp/home"]) {
-                sh "mkdir -p $HOME/.gnupg && chmod 700 $HOME/.gnupg"
+                sh "mkdir -p $HOME/.gnupg && chmod 700 $HOME/.gnupg && mkdir $HOME/.ssh && chmod 700 $HOME/.ssh"
                 withMaven(globalMavenSettingsConfig: globalMavenSettingsConfig, mavenLocalRepo: '.m2') {
 
                     /*
@@ -81,6 +81,8 @@ def call(Closure closure) {
 
                             if (isDeployableBranch) {
                                 sshagent([scm.userRemoteConfigs[0].credentialsId]) {
+                                    echo "Home: $HOME"
+                                    
                                     sh "git push origin ${tag}"
                                 }
                             }
