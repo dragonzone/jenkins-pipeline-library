@@ -31,6 +31,7 @@ def call(Closure config) {
         stage("Push Docker Image") {
             docker.withRegistry('https://docker.dragon.zone:10081', 'jenkins-nexus') {
                 image.push()
+                image.push(env.BRANCH_NAME)
             }
         }
     }
