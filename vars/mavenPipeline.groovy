@@ -77,9 +77,9 @@ def call(Closure closure) {
 
                         if (isDeployableBranch) {
                             sshagent([scm.userRemoteConfigs[0].credentialsId]) {
+                                sh "git push origin ${tag}"
                                 sh 'echo $SSH_AGENT_SOCK'
                                 echo "SSH Agent Test"
-                                sh "git push origin ${tag}"
                             }
                         }
                     } finally {
