@@ -37,7 +37,7 @@ def call(Closure closure) {
                  */
                 stage("Checkout & Initialize Project") {
                     checkout scm
-                    sh "PATH=$MVN_CMD_DIR:$PATH mvn ${mavenArgs} ${mavenValidateProjectGoals}"
+                    sh "mvn ${mavenArgs} ${mavenValidateProjectGoals} com.outbrain.swinfra:ci-friendly-flatten-maven-plugin:1.0.6:version"
                 }
 
                 // Get Git Information
@@ -48,35 +48,28 @@ def call(Closure closure) {
                 sh "git config user.email '${gitAuthorEmail}'"
 
                 // Set Build Information
+                def revision = readFile(file: "revision.txt")
                 def pom = readMavenPom(file: "pom.xml")
                 def artifactId = pom.artifactId
-                def versionWithBuild = pom.version.replace("-SNAPSHOT", ".${env.BUILD_NUMBER}")
-                def version = "${versionWithBuild}-${gitSha1.take(6)}"
-                def tag = "${artifactId}-${isDeployableBranch ? versionWithBuild : version}"
-                currentBuild.displayName = "${artifactId}-${version}"
+                def tag = "${artifactId}-${revision}"
+                currentBuild.displayName = tag
                 currentBuild.description = gitAuthor
+                mavenArgs = "${mavenArgs} -Dsha1=${gitSha1} -Drevision=${revision}"
 
-                /*
-                 * Use the maven-release-plugin to verify that the pom is ready for release (no snapshots) and update the
-                 * version. We don't push changes here, because we will push the tag after the build if it succeeds. We
-                 * also set the preparationGoals to initialize so that we don't do a build here, just pom updates.
-                 */
-                stage("Validate Project") {
-                    sh "PATH=$MVN_CMD_DIR:$PATH mvn ${mavenArgs} release:prepare -Dresume=false -Darguments=\\\"${mavenArgs}\\\" -DpushChanges=false -DpreparationGoals=initialize -Dtag=${tag} -DreleaseVersion=${version} -DdevelopmentVersion=${pom.version}"
-                }
-
-                // Actually build the project
+                // Build the project
                 stage("Build Project") {
                     try {
                         withCredentials([string(credentialsId: 'gpg-signing-key-id', variable: 'GPG_KEYID'), file(credentialsId: 'gpg-signing-key', variable: 'GPG_SIGNING_KEY')]) {
                             sh 'gpg --allow-secret-key-import --import $GPG_SIGNING_KEY && echo "$GPG_KEYID:6:" | gpg --import-ownertrust'
-                            sh "PATH=$MVN_CMD_DIR:$PATH mvn ${mavenArgs} release:perform -DlocalCheckout=true -Dgoals=\\\"${isDeployableBranch ? mavenDeployGoals : mavenNonDeployGoals}\\\" -Darguments=\\\"${mavenArgs} ${isDeployableBranch ? mavenDeployArgs : mavenNonDeployArgs} -Dgpg.keyname=$GPG_KEYID\\\""
+
+                            sh "mvn ${mavenArgs} ${isDeployableBranch ? mavenDeployGoals : mavenNonDeployGoals} -Dgpg.keyname=$GPG_KEYID\""
                         }
                         archiveArtifacts 'target/checkout/**/pom.xml'
 
                         if (isDeployableBranch) {
                             sshagent([scm.userRemoteConfigs[0].credentialsId]) {
                                 sh 'mkdir ~/.ssh && echo StrictHostKeyChecking no > ~/.ssh/config'
+                                sh "git tag ${tag}"
                                 sh "git push origin ${tag}"
                             }
                         }
@@ -87,13 +80,13 @@ def call(Closure closure) {
                 if (isDeployableBranch) {
                     stage("Stage to Maven Central") {
                         try {
-                            sh "PATH=$MVN_CMD_DIR:$PATH mvn -f target/checkout/pom.xml ${mavenArgs} -P maven-central nexus-staging:deploy-staged"
+                            sh "mvn ${mavenArgs} -P maven-central nexus-staging:deploy-staged"
 
                             input message: 'Publish to Central?', ok: 'Publish'
 
-                            sh "PATH=$MVN_CMD_DIR:$PATH mvn -f target/checkout/pom.xml ${mavenArgs} -P maven-central nexus-staging:release"
+                            sh "mvn ${mavenArgs} -P maven-central nexus-staging:release"
                         } catch (err) {
-                            sh "PATH=$MVN_CMD_DIR:$PATH mvn -f target/checkout/pom.xml ${mavenArgs} -P maven-central nexus-staging:drop"
+                            sh "mvn ${mavenArgs} -P maven-central nexus-staging:drop"
                             throw err
                         }
                     }
