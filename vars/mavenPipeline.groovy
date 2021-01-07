@@ -65,7 +65,7 @@ def call(Closure closure) {
                  * also set the preparationGoals to initialize so that we don't do a build here, just pom updates.
                  */
                 stage("Validate Project") {
-                    sh "$mvn ${mavenArgs} release:prepare -Dresume=false \\\"-Darguments=${mavenArgs}\\\" -DpushChanges=false -DpreparationGoals=initialize -Dtag=${tag} -DreleaseVersion=${version} -DdevelopmentVersion=${pom.version}"
+                    sh "$mvn ${mavenArgs} release:prepare -Dresume=false -DpushChanges=false -DpreparationGoals=initialize -Dtag=${tag} -DreleaseVersion=${version} -DdevelopmentVersion=${pom.version} \\\"-Darguments=${mavenArgs}\\\""
                 }
 
                 // Actually build the project
