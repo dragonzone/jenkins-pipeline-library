@@ -65,7 +65,7 @@ def call(Closure closure) {
                  * also set the preparationGoals to initialize so that we don't do a build here, just pom updates.
                  */
                 stage("Validate Project") {
-                    sh "$mvn ${mavenArgs} release:prepare -Dresume=false -DpushChanges=false -DpreparationGoals=initialize -Dtag=${tag} -DreleaseVersion=${version} -DdevelopmentVersion=${pom.version} \\\"-Darguments=${mavenArgs}"
+                    sh "$mvn ${mavenArgs} release:prepare -Dresume=false -DpushChanges=false -DpreparationGoals=initialize -Dtag=${tag} -DreleaseVersion=${version} -DdevelopmentVersion=${pom.version} '-Darguments=${mavenArgs}'"
                 }
 
                 // Actually build the project
@@ -73,7 +73,7 @@ def call(Closure closure) {
                     try {
                         withCredentials([string(credentialsId: 'gpg-signing-key-id', variable: 'GPG_KEYID'), file(credentialsId: 'gpg-signing-key', variable: 'GPG_SIGNING_KEY')]) {
                             sh 'gpg --allow-secret-key-import --import $GPG_SIGNING_KEY && echo "$GPG_KEYID:6:" | gpg --import-ownertrust'
-                            sh "$mvn ${mavenArgs} release:perform -DlocalCheckout=true \\\"-Dgoals=${isDeployableBranch ? mavenDeployGoals : mavenNonDeployGoals}\\\" \\\"-Darguments=${mavenArgs} ${isDeployableBranch ? mavenDeployArgs : mavenNonDeployArgs} -Dgpg.keyname=$GPG_KEYID\\\""
+                            sh "$mvn ${mavenArgs} release:perform -DlocalCheckout=true '-Dgoals=${isDeployableBranch ? mavenDeployGoals : mavenNonDeployGoals}' '-Darguments=${mavenArgs} ${isDeployableBranch ? mavenDeployArgs : mavenNonDeployArgs} -Dgpg.keyname=$GPG_KEYID'"
                         }
                         archiveArtifacts 'target/checkout/**/pom.xml'
 
