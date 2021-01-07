@@ -33,7 +33,7 @@ def call(Closure closure) {
         buildEnv.inside {
 
             configFileProvider([configFile(fileId: globalMavenSettingsConfig, variable: "MAVEN_SETTINGS")]) {
-                def mvn = "mvn -s \\\"$MAVEN_SETTINGS\\\" -Dmaven.repo.local=\\\"$WORKSPACE/.m2\\\""
+                def mvn = "mvn -X -s \\\"$MAVEN_SETTINGS\\\" -Dmaven.repo.local=\\\"$WORKSPACE/.m2\\\""
 
                 /*
                  * Clone the repository and make sure that the pom.xml file is structurally valid and has a GAV
