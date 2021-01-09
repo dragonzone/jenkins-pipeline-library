@@ -33,7 +33,7 @@ def call(Closure closure) {
         }
 
         buildEnv.inside {
-            withMaven(globalMavenSettingsConfig: globalMavenSettingsConfig, mavenLocalRepo: '.m2') {
+            configFileProvider([configFile(fileId: globalMavenSettingsConfig, variable: "MAVEN_SETTINGS")]) {
                 /*
                  * Clone the repository and make sure that the pom.xml file is structurally valid and has a GAV
                  */
@@ -83,7 +83,7 @@ def call(Closure closure) {
                         withCredentials([string(credentialsId: 'gpg-signing-key-id', variable: 'GPG_KEYID'), file(credentialsId: 'gpg-signing-key', variable: 'GPG_SIGNING_KEY')]) {
                             sh 'gpg --allow-secret-key-import --import $GPG_SIGNING_KEY && echo "$GPG_KEYID:6:" | gpg --import-ownertrust'
 
-                            sh "mvn ${mavenArgs} ${isDeployableBranch ? mavenDeployGoals : mavenNonDeployGoals} ${isDeployableBranch ? mavenDeployArgs : mavenNonDeployArgs} \"-Dgpg.keyname=$GPG_KEYID\""
+                            sh "mvn -s \\\"$MAVEN_SETTINGS\\\" \\\"-Dmaven.repo.local=$WORKSPACE/.m2\\\" ${mavenArgs} ${isDeployableBranch ? mavenDeployGoals : mavenNonDeployGoals} ${isDeployableBranch ? mavenDeployArgs : mavenNonDeployArgs} \"-Dgpg.keyname=$GPG_KEYID\""
                         }
                         archiveArtifacts 'target/checkout/**/pom.xml'
 
