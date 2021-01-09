@@ -38,13 +38,10 @@ def call(Closure closure) {
                  * Clone the repository and make sure that the pom.xml file is structurally valid and has a GAV
                  */
                 stage("Checkout & Initialize Project") {
-                    scm.extensions.add([$class: 'CloneOption', noTags: false, shallow: false, depth: 0, reference: ''])
-                    echo scm.dump()
                     checkout scm
                 }
 
                 // Get Git Information
-                sh "git fetch origin --tags"
                 def gitSha1 = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                 def gitAuthor = env.CHANGE_AUTHOR ? env.CHANGE_AUTHOR : sh(returnStdout: true, script: 'git log -1 --format="%aN" HEAD').trim()
                 def gitAuthorEmail = env.CHANGE_AUTHOR_EMAIL ? env.CHANGE_AUTHOR_EMAIL : sh(returnStdout: true, script: 'git log -1 --format="%aE" HEAD').trim()
