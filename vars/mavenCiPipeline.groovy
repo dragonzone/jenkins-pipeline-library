@@ -38,6 +38,7 @@ def call(Closure closure) {
                  * Clone the repository and make sure that the pom.xml file is structurally valid and has a GAV
                  */
                 stage("Checkout & Initialize Project") {
+                    scm.extensions.add([$class: 'CloneOption', noTags: false, shallow: false, depth: 0, reference: ''])
                     echo scm.dump()
                     checkout scm
                 }
