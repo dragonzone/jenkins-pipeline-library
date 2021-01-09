@@ -1,3 +1,5 @@
+import java.util.regex.Pattern
+
 def call(Closure closure) {
     // Project Config
     def buildEnvironmentImage = "docker.dragon.zone:10081/dragonzone/maven-build:master"
@@ -37,21 +39,37 @@ def call(Closure closure) {
                  */
                 stage("Checkout & Initialize Project") {
                     checkout scm
-                    sh "mvn ${mavenArgs} ${mavenValidateProjectGoals} com.outbrain.swinfra:ci-friendly-flatten-maven-plugin:1.0.6:version"
                 }
 
                 // Get Git Information
                 def gitSha1 = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-                def gitAuthor = "${env.CHANGE_AUTHOR ? env.CHANGE_AUTHOR : sh(returnStdout: true, script: 'git log -1 --format="%aN" HEAD').trim()}"
-                def gitAuthorEmail = "${env.CHANGE_AUTHOR_EMAIL ? env.CHANGE_AUTHOR_EMAIL : sh(returnStdout: true, script: 'git log -1 --format="%aE" HEAD').trim()}"
+                def gitAuthor = env.CHANGE_AUTHOR ? env.CHANGE_AUTHOR : sh(returnStdout: true, script: 'git log -1 --format="%aN" HEAD').trim()
+                def gitAuthorEmail = env.CHANGE_AUTHOR_EMAIL ? env.CHANGE_AUTHOR_EMAIL : sh(returnStdout: true, script: 'git log -1 --format="%aE" HEAD').trim()
                 sh "git config user.name '${gitAuthor}'"
                 sh "git config user.email '${gitAuthorEmail}'"
+                def lastTag = sh(returnStdout: true, script: "git describe --abbrev=0 --tags").trim()
+                echo "Last Tag: ${lastTag}"
 
                 // Set Build Information
-                def revision = readFile(file: "revision.txt")
                 def pom = readMavenPom(file: "pom.xml")
                 def artifactId = pom.artifactId
-                def tag = "${artifactId}-${revision}"
+                def versionTemplate = pom.version
+                def revision = "0"
+                if (lastTag.startsWith(artifactId+"-")) {
+                    def lastVersion = lastTag.substring(artifactId.length()+1)
+                    def lastVersionPattern = Pattern.compile(Pattern.quote(lastVersion).replaceAll(Pattern.quote('\\$\\{revision\\}'), '(?<revision>\\d+)').replaceAll(Pattern.quote('\\$\\{sha1\\}'), '[0-9a-fA-F]+'))
+                    def matcher = lastTag =~ lastVersionPattern
+                    if (matcher.matches()) {
+                        def lastRevision = matcher.group('revision') as Integer
+                        echo "Version pattern matches; Last Revision: ${lastRevision}"
+                        revision = (lastRevision+1).toString()
+                    }
+                }
+
+                def version = versionTemplate.replaceAll(Pattern.quote('${revision}'), revision).replaceAll(Pattern.quote('${sha1}'), gitSha1)
+
+
+                def tag = "${artifactId}-${version}"
                 currentBuild.displayName = tag
                 currentBuild.description = gitAuthor
                 mavenArgs = "${mavenArgs} -Dsha1=${gitSha1} -Drevision=${revision}"
