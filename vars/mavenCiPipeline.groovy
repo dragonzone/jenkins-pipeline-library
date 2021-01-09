@@ -38,6 +38,7 @@ def call(Closure closure) {
                  * Clone the repository and make sure that the pom.xml file is structurally valid and has a GAV
                  */
                 stage("Checkout & Initialize Project") {
+                    scm.dump()
                     checkout scm
                 }
 
