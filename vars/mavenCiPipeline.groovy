@@ -56,9 +56,12 @@ def call(Closure closure) {
                 def versionTemplate = pom.version
                 def revision = "0"
                 if (lastTag.startsWith(artifactId+"-")) {
+                    echo "Artifact ID matches"
                     def lastVersion = lastTag.substring(artifactId.length()+1)
-                    def lastVersionPattern = Pattern.compile(Pattern.quote(lastVersion).replaceAll(Pattern.quote('\\$\\{revision\\}'), '(?<revision>\\d+)').replaceAll(Pattern.quote('\\$\\{sha1\\}'), '[0-9a-fA-F]+'))
-                    def matcher = lastTag =~ lastVersionPattern
+                    echo "Last Version: ${lastVersion}"
+                    def versionPattern = Pattern.compile(Pattern.quote(versionTemplate).replaceAll(Pattern.quote('\\$\\{revision\\}'), '(?<revision>\\d+)').replaceAll(Pattern.quote('\\$\\{sha1\\}'), '[0-9a-fA-F]+'))
+                    echo "Version Pattern: ${versionPattern}"
+                    def matcher = lastTag =~ versionPattern
                     if (matcher.matches()) {
                         def lastRevision = matcher.group('revision') as Integer
                         echo "Version pattern matches; Last Revision: ${lastRevision}"
