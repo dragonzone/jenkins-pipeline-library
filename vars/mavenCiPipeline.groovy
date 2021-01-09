@@ -83,7 +83,7 @@ def call(Closure closure) {
                         withCredentials([string(credentialsId: 'gpg-signing-key-id', variable: 'GPG_KEYID'), file(credentialsId: 'gpg-signing-key', variable: 'GPG_SIGNING_KEY')]) {
                             sh 'gpg --allow-secret-key-import --import $GPG_SIGNING_KEY && echo "$GPG_KEYID:6:" | gpg --import-ownertrust'
 
-                            sh "mvn ${mavenArgs} ${isDeployableBranch ? mavenDeployGoals : mavenNonDeployGoals} -Dgpg.keyname=$GPG_KEYID\""
+                            sh "mvn ${mavenArgs} ${isDeployableBranch ? mavenDeployGoals : mavenNonDeployGoals} \"-Dgpg.keyname=$GPG_KEYID\""
                         }
                         archiveArtifacts 'target/checkout/**/pom.xml'
 
