@@ -36,6 +36,7 @@ def call(Closure closure) {
 
         buildEnv.inside {
             configFileProvider([configFile(fileId: globalMavenSettingsConfig, variable: "MAVEN_SETTINGS")]) {
+                sleep 3600
                 /*
                  * Clone the repository and make sure that the pom.xml file is structurally valid and has a GAV
                  */
