@@ -103,13 +103,13 @@ def call(Closure closure) {
                 if (isDeployableBranch) {
                     stage("Stage to Maven Central") {
                         try {
-                            sh "mvn ${mavenArgs} -P maven-central nexus-staging:deploy-staged"
+                            sh "mvn -s \\\"$MAVEN_SETTINGS\\\" \\\"-Dmaven.repo.local=$WORKSPACE/.m2\\\" ${mavenArgs} -P maven-central nexus-staging:deploy-staged"
 
                             input message: 'Publish to Central?', ok: 'Publish'
 
-                            sh "mvn ${mavenArgs} -P maven-central nexus-staging:release"
+                            sh "mvn -s \\\"$MAVEN_SETTINGS\\\" \\\"-Dmaven.repo.local=$WORKSPACE/.m2\\\" ${mavenArgs} -P maven-central nexus-staging:release"
                         } catch (err) {
-                            sh "mvn ${mavenArgs} -P maven-central nexus-staging:drop"
+                            sh "mvn -s \\\"$MAVEN_SETTINGS\\\" \\\"-Dmaven.repo.local=$WORKSPACE/.m2\\\" ${mavenArgs} -P maven-central nexus-staging:drop"
                             throw err
                         }
                     }
