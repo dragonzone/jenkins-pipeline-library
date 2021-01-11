@@ -29,7 +29,9 @@ def call(Closure closure) {
         def isDeployableBranch = env.BRANCH_NAME.matches(deployableBranchRegex)
 
         stage("Prepare Build Environment") {
-            buildEnv.pull()
+            docker.withRegistry('https://docker.dragon.zone:10080', 'jenkins-nexus') {
+                buildEnv.pull()
+            }
         }
 
         buildEnv.inside {
