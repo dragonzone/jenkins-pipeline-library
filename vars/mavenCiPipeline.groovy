@@ -7,7 +7,7 @@ def call(Closure closure) {
     def deployableBranchRegex = "master"
 
     // Maven Config
-    def mavenArgs = "-B -U -Dci=true"
+    def mavenArgs = "-X -B -U -Dci=true"
     def mavenValidateProjectGoals = "clean initialize"
     def mavenNonDeployArgs = "-P sign"
     def mavenNonDeployGoals = "verify"
