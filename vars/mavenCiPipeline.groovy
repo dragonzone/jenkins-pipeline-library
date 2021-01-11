@@ -61,7 +61,7 @@ def call(Closure closure) {
                     echo "Artifact ID matches"
                     def lastVersion = lastTag.substring(artifactId.length()+1)
                     echo "Last Version: ${lastVersion}"
-                    def versionPattern = Pattern.compile(Pattern.quote(versionTemplate).replaceAll(Pattern.quote('\\$\\{revision\\}'), '(?<revision>\\d+)').replaceAll(Pattern.quote('\\$\\{sha1\\}'), '[0-9a-fA-F]+'))
+                    def versionPattern = Pattern.compile(Pattern.quote(versionTemplate).replaceAll('\\Q${revision}\\E', '\\\\E(?<revision>\\d+)\\\\Q').replaceAll('\\Q${sha1}\\E', '\\\\E[0-9a-fA-F]+\\\\Q'))
                     echo "Version Pattern: ${versionPattern}"
                     def matcher = lastTag =~ versionPattern
                     if (matcher.matches()) {
