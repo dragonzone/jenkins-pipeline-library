@@ -2,7 +2,7 @@ import java.util.regex.Pattern
 
 def call(Closure closure) {
     // Project Config
-    def buildEnvironmentImage = "dragonzone/maven-build:master"
+    def buildEnvironmentImage = "docker.dragon.zone:10080/dragonzone/maven-build:master"
     def buildableBranchRegex = ".*" // ( PRs are in the form 'PR-\d+' )
     def deployableBranchRegex = "master"
 
