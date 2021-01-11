@@ -63,7 +63,7 @@ def call(Closure closure) {
                     echo "Last Version: ${lastVersion}"
                     def versionPattern = Pattern.compile(Pattern.quote(versionTemplate).replaceAll('\\Q${revision}\\E', '\\\\E(?<revision>\\\\d+)\\\\Q').replaceAll('\\Q${sha1}\\E', '\\\\E[0-9a-fA-F]+\\\\Q'))
                     echo "Version Pattern: ${versionPattern}"
-                    def matcher = lastTag =~ versionPattern
+                    def matcher = lastVersion =~ versionPattern
                     if (matcher.matches()) {
                         def lastRevision = matcher.group('revision') as Integer
                         echo "Version pattern matches; Last Revision: ${lastRevision}"
