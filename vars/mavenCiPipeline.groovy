@@ -92,7 +92,7 @@ def call(Closure closure) {
                         if (isDeployableBranch) {
                             sshagent([scm.userRemoteConfigs[0].credentialsId]) {
                                 sh 'mkdir ~/.ssh && echo StrictHostKeyChecking no > ~/.ssh/config'
-                                sh "git tag ${tag}"
+                                sh "git tag -a ${tag} -m Release"
                                 sh "git push origin ${tag}"
                             }
                         }
