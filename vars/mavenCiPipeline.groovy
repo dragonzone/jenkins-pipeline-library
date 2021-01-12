@@ -8,11 +8,10 @@ def call(Closure closure) {
 
     // Maven Config
     def mavenArgs = "-B -U -Dci=true"
-    def mavenValidateProjectGoals = "clean initialize"
     def mavenNonDeployArgs = "-P sign"
-    def mavenNonDeployGoals = "verify"
+    def mavenNonDeployGoals = "clean verify"
     def mavenDeployArgs = "-P sign,maven-central -DdeployAtEnd=true"
-    def mavenDeployGoals = "deploy nexus-staging:deploy"
+    def mavenDeployGoals = "clean deploy nexus-staging:deploy"
     def requireTests = false
     def globalMavenSettingsConfig = "maven-dragonZone"
 
