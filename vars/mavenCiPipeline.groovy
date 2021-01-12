@@ -95,7 +95,7 @@ def call(Closure closure) {
                             }
                         }
 
-                        archiveArtifacts '**/pom.xml'
+                        archiveArtifacts artifacts: '**/*pom.xml', excludes: '.m2/**'
                     } finally {
                         junit allowEmptyResults: !requireTests, testResults: "target/checkout/**/target/surefire-reports/TEST-*.xml"
                     }
