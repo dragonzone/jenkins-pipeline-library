@@ -86,7 +86,6 @@ def call(Closure closure) {
 
                             sh "mvn -s \\\"$MAVEN_SETTINGS\\\" \\\"-Dmaven.repo.local=$WORKSPACE/.m2\\\" ${mavenArgs} ${isDeployableBranch ? mavenDeployGoals : mavenNonDeployGoals} ${isDeployableBranch ? mavenDeployArgs : mavenNonDeployArgs} \"-Dgpg.keyname=$GPG_KEYID\""
                         }
-                        archiveArtifacts 'target/checkout/**/pom.xml'
 
                         if (isDeployableBranch) {
                             sshagent([scm.userRemoteConfigs[0].credentialsId]) {
@@ -95,6 +94,8 @@ def call(Closure closure) {
                                 sh "git push origin ${tag}"
                             }
                         }
+
+                        archiveArtifacts '**/pom.xml'
                     } finally {
                         junit allowEmptyResults: !requireTests, testResults: "target/checkout/**/target/surefire-reports/TEST-*.xml"
                     }
