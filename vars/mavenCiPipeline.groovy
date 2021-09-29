@@ -48,7 +48,12 @@ def call(Closure closure) {
                 def gitAuthorEmail = env.CHANGE_AUTHOR_EMAIL ? env.CHANGE_AUTHOR_EMAIL : sh(returnStdout: true, script: 'git log -1 --format="%aE" HEAD').trim()
                 sh "git config user.name '${gitAuthor}'"
                 sh "git config user.email '${gitAuthorEmail}'"
-                def lastTag = sh(returnStdout: true, script: "git describe --abbrev=0 --tags").trim()
+                def lastTag = "Unknown"
+                try {
+                    lastTag = sh(returnStdout: true, script: "git describe --abbrev=0 --tags").trim()
+                } catch (Exception e) {
+                    echo "Could not query the last tag."
+                }
                 echo "Last Tag: ${lastTag}"
 
                 // Set Build Information
