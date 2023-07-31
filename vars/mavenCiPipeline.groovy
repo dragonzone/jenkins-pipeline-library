@@ -4,7 +4,7 @@ def call(Closure closure) {
     // Project Config
     def buildEnvironmentImage = "docker.dragon.zone:10080/dragonzone/maven-build:master"
     def buildableBranchRegex = ".*" // ( PRs are in the form 'PR-\d+' )
-    def deployableBranchRegex = "master"
+    def deployableBranchRegex = "(master)|(release/.*)"
 
     // Maven Config
     def mavenArgs = "-B -U -Dci=true"
