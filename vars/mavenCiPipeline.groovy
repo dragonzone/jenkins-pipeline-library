@@ -11,7 +11,7 @@ def call(Closure closure) {
     def mavenNonDeployArgs = "-P sign"
     def mavenNonDeployGoals = "clean verify"
     def mavenDeployArgs = "-P sign,maven-central -DdeployAtEnd=true"
-    def mavenDeployGoals = "clean deploy nexus-staging:deploy"
+    def mavenDeployGoals = "clean deploy"
     def requireTests = false
     def globalMavenSettingsConfig = "maven-dragonZone"
 
@@ -103,20 +103,6 @@ def call(Closure closure) {
                         archiveArtifacts artifacts: '**/*pom.xml', excludes: '.m2/**'
                     } finally {
                         junit allowEmptyResults: !requireTests, testResults: "target/checkout/**/target/surefire-reports/TEST-*.xml"
-                    }
-                }
-                if (isDeployableBranch) {
-                    stage("Stage to Maven Central") {
-                        try {
-                            sh "mvn -s \\\"$MAVEN_SETTINGS\\\" \\\"-Dmaven.repo.local=$WORKSPACE/.m2\\\" ${mavenArgs} -P maven-central nexus-staging:deploy-staged"
-
-                            input message: 'Publish to Central?', ok: 'Publish'
-
-                            sh "mvn -s \\\"$MAVEN_SETTINGS\\\" \\\"-Dmaven.repo.local=$WORKSPACE/.m2\\\" ${mavenArgs} -P maven-central nexus-staging:release"
-                        } catch (err) {
-                            sh "mvn -s \\\"$MAVEN_SETTINGS\\\" \\\"-Dmaven.repo.local=$WORKSPACE/.m2\\\" ${mavenArgs} -P maven-central nexus-staging:drop"
-                            throw err
-                        }
                     }
                 }
             }
